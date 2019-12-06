@@ -1,9 +1,12 @@
 package ee.ut.photomanipulation
 
+import android.content.ContentValues.TAG
 import android.content.Context
+import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,10 +27,17 @@ class PictureAdapter(context: Context, cursor: Cursor) : CursorAdapter(
         val pictureView = view?.findViewById<ImageView>(R.id.picture)
 
         val imagePath = cursor?.getString(columnIndexData!!)
+        val imageUri = Uri.fromFile(File(imagePath))
         var bitmap = MediaStore.Images.Media.getBitmap(
             context?.contentResolver,
             Uri.fromFile(File(imagePath))
         )
         pictureView?.setImageBitmap(bitmap)
+
+        pictureView?.setOnClickListener { view ->
+            val intent = Intent(context, PictureActivity::class.java)
+            intent.putExtra("imagePath", imagePath)
+            context?.startActivity(intent)
+        }
     }
 }

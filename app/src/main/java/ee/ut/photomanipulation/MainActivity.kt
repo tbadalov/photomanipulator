@@ -53,5 +53,4 @@ class MainActivity : AppCompatActivity() {
             MediaStore.Images.Media.insertImage(contentResolver ,imageBitmap ,"" , "")
         }
     }
-
 }

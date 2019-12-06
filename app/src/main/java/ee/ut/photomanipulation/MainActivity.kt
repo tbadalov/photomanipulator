@@ -18,7 +18,6 @@ class MainActivity : AppCompatActivity() {
     val MAIN_ACTIVITY = "mainActivity"
     val REQUEST_IMAGE_CAPTURE = 1
     var pictureAdapter: PictureAdapter? = null
-    val pictures = mutableListOf<Bitmap>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,11 +38,6 @@ class MainActivity : AppCompatActivity() {
         pictures_listview.adapter = pictureAdapter
     }
 
-    fun addPicture(bitmap: Bitmap) {
-        pictures.add(bitmap)
-        pictureAdapter?.notifyDataSetChanged()
-        MediaStore.Images.Media.insertImage(contentResolver ,bitmap ,"nameofimage" , "description")
-    }
 
     private fun dispatchTakePictureIntent() {
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
@@ -56,7 +50,7 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             val imageBitmap = data?.extras?.get("data") as Bitmap
-            addPicture(imageBitmap)
+            MediaStore.Images.Media.insertImage(contentResolver ,imageBitmap ,"" , "")
         }
     }
 

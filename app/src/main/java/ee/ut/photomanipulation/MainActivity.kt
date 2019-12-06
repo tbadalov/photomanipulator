@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val uri = EXTERNAL_CONTENT_URI
         val projection = arrayOf(MediaColumns.DATA, BUCKET_DISPLAY_NAME, MediaColumns._ID)
-        val cursor = contentResolver.query(uri, projection, null, null, null)!!
+        val cursor = contentResolver.query(uri, projection, null, null, MediaColumns.DATE_ADDED + " DESC")!!
         initPictureAdapter(cursor)
         fab.setOnClickListener {
             Log.v(MAIN_ACTIVITY, "fab")
@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity() {
     fun addPicture(bitmap: Bitmap) {
         pictures.add(bitmap)
         pictureAdapter?.notifyDataSetChanged()
+        MediaStore.Images.Media.insertImage(contentResolver ,bitmap ,"nameofimage" , "description")
     }
 
     private fun dispatchTakePictureIntent() {

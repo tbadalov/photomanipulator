@@ -18,7 +18,6 @@ class MainActivity : AppCompatActivity() {
     val MAIN_ACTIVITY = "mainActivity"
     val REQUEST_IMAGE_CAPTURE = 1
     var pictureAdapter: PictureAdapter? = null
-    val pictures = mutableListOf<Bitmap>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val uri = EXTERNAL_CONTENT_URI
         val projection = arrayOf(MediaColumns.DATA, BUCKET_DISPLAY_NAME, MediaColumns._ID)
-        val cursor = contentResolver.query(uri, projection, null, null, null)!!
+        val cursor = contentResolver.query(uri, projection, null, null, MediaColumns.DATE_ADDED + " DESC")!!
         initPictureAdapter(cursor)
         fab.setOnClickListener {
             Log.v(MAIN_ACTIVITY, "fab")
@@ -39,10 +38,6 @@ class MainActivity : AppCompatActivity() {
         pictures_listview.adapter = pictureAdapter
     }
 
-    fun addPicture(bitmap: Bitmap) {
-        pictures.add(bitmap)
-        pictureAdapter?.notifyDataSetChanged()
-    }
 
     private fun dispatchTakePictureIntent() {
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
@@ -55,7 +50,7 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             val imageBitmap = data?.extras?.get("data") as Bitmap
-            addPicture(imageBitmap)
+            MediaStore.Images.Media.insertImage(contentResolver ,imageBitmap ,"" , "")
         }
     }
 

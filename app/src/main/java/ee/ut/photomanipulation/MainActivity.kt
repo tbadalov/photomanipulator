@@ -31,6 +31,7 @@ class MainActivity : AppCompatActivity() {
             Log.v(MAIN_ACTIVITY, "fab")
             dispatchTakePictureIntent()
         }
+        startActivity(Intent(this, PhotoEditActivity::class.java))
     }
 
     private fun initPictureAdapter(cursor: Cursor) {

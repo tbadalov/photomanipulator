@@ -7,7 +7,17 @@
     tools:context=".PhotoEditActivity"
     android:background="@android:color/black">
 
+    <ImageView
+        android:id="@+id/img_edit"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/operations_scroll"/>
+
     <HorizontalScrollView
+        android:id="@+id/operations_scroll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -22,24 +32,28 @@
             android:padding="10dp"
             android:background="@android:color/darker_gray">
             <ImageView
+                android:id="@+id/btn_crop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/image_crop"
                 android:layout_marginHorizontal="12dp"/>
 
             <ImageView
+                android:id="@+id/btn_rotate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/image_crop"
                 android:layout_marginHorizontal="12dp"/>
 
             <ImageView
+                android:id="@+id/btn_mirror_vertical"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/image_crop"
                 android:layout_marginHorizontal="12dp"/>
 
             <ImageView
+                android:id="@+id/btn_mirror_horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/image_crop"

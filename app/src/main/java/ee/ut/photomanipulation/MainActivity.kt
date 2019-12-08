@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity() {
             Log.v(MAIN_ACTIVITY, "fab")
             dispatchTakePictureIntent()
         }
+        startActivity(Intent(this, PhotoEditActivity::class.java))
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

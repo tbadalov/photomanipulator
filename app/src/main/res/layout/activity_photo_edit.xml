@@ -38,14 +38,29 @@
                 android:src="@drawable/image_crop"
                 android:layout_marginHorizontal="10dp"/>
 
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/image_crop"
+                android:layout_marginHorizontal="10dp"/>
 
             <ImageView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:src="@drawable/image_crop"
+                android:layout_marginHorizontal="10dp"/>
 
             <ImageView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:src="@drawable/image_crop"
+                android:layout_marginHorizontal="10dp"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/image_crop"
+                android:layout_marginHorizontal="10dp"/>
         </LinearLayout>
 
     </HorizontalScrollView>

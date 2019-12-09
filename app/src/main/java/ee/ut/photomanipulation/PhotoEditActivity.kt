@@ -8,19 +8,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.soundcloud.android.crop.Crop
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_photo_edit.*
-<<<<<<< HEAD
 import java.io.File
-=======
->>>>>>> Add crop and mirror operations
 
 
 class PhotoEditActivity : AppCompatActivity() {
-
-    private lateinit var imgUri: Uri
-
-//    private val listenerMapping = mapOf<Int, View.OnClickListener>(
-//        R.id.btn_crop to ((v) -> {})
-//    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

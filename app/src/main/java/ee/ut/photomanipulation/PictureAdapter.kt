@@ -35,7 +35,7 @@ class PictureAdapter(context: Context, cursor: Cursor) : CursorAdapter(
         pictureView?.setImageBitmap(bitmap)
 
         pictureView?.setOnClickListener { view ->
-            val intent = Intent(context, PictureActivity::class.java)
+            val intent = Intent(context, PhotoEditActivity::class.java)
             intent.putExtra("imagePath", imagePath)
             context?.startActivity(intent)
         }

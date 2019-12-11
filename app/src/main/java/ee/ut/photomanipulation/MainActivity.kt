@@ -28,9 +28,15 @@ class MainActivity : AppCompatActivity() {
         val projection = arrayOf(MediaColumns.DATA, BUCKET_DISPLAY_NAME, MediaColumns._ID)
         val cursor = contentResolver.query(uri, projection, null, null, MediaColumns.DATE_ADDED + " DESC")!!
         initPictureAdapter(cursor)
+
         fab.setOnClickListener {
             Log.v(MAIN_ACTIVITY, "fab")
             dispatchTakePictureIntent()
+        }
+
+        fab2.setOnClickListener {
+            val intent = Intent(this, CameraActivity::class.java)
+            startActivity(intent)
         }
     }
 

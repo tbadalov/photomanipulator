@@ -1,110 +1,224 @@
 package ee.ut.photomanipulation
 
-import android.annotation.SuppressLint
+import android.Manifest
 import android.content.Context
-import android.graphics.ImageFormat
-import android.hardware.camera2.CameraCaptureSession
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraDevice
-import android.hardware.camera2.CameraManager
-import androidx.appcompat.app.AppCompatActivity
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.SurfaceTexture
+import android.hardware.camera2.*
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
+import android.util.Log
+import android.util.Size
 import android.view.Surface
-import android.view.SurfaceHolder
+import android.view.TextureView
+import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import kotlinx.android.synthetic.main.activity_camera.*
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
+
 
 class CameraActivity : AppCompatActivity() {
 
+    val TAG = "CameraActivity"
+
     lateinit var cameraManager: CameraManager
+    var cameraFacing = CameraCharacteristics.LENS_FACING_BACK
+    lateinit var galleryFolder: File
+    lateinit var previewSize : Size
+    lateinit var cameraId : String
+    var mCameraDevice : CameraDevice? = null
+    var mCameraCaptureSession : CameraCaptureSession? = null
+    var mCaptureRequestBuilder : CaptureRequest.Builder? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera)
-        surfaceView.holder.addCallback(surfaceReadyCallback)
-    }
+        createImageGallery()
 
-    @SuppressLint("MissingPermission")
-    private fun startCameraSession() {
         cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
-
-        if (cameraManager.cameraIdList.isEmpty()) { return } // no cameras
-
-        val firstCamera = cameraManager.cameraIdList[0] // check for front facing camera
-
-        cameraManager.openCamera(firstCamera, cameraStateCallback, Handler { true })
     }
 
-    private val cameraStateCallback = object : CameraDevice.StateCallback() {
-        override fun onOpened(camera: CameraDevice) {
-            val cameraCharacteristics = cameraManager.getCameraCharacteristics(camera.id)
-            cameraCharacteristics[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]?.let { streamConfigurationMap ->
-                streamConfigurationMap.getOutputSizes(ImageFormat.JPEG)?.let { sizes ->
-                    val previewSize = sizes[0]
+    val surfaceTextureListener = object : TextureView.SurfaceTextureListener {
+        override fun onSurfaceTextureSizeChanged(p0: SurfaceTexture?, p1: Int, p2: Int) { }
 
-                    val displayRotation = windowManager.defaultDisplay.rotation
-                    val swappedDimensions = areDimensionsSwapped(displayRotation, cameraCharacteristics)
+        override fun onSurfaceTextureUpdated(p0: SurfaceTexture?) { }
 
-                    // swap width and height if needed
-                    val rotatedPreviewWidth = if (swappedDimensions) previewSize.height else previewSize.width
-                    val rotatedPreviewHeight = if (swappedDimensions) previewSize.width else previewSize.height
-                    surfaceView.holder.setFixedSize(rotatedPreviewWidth, rotatedPreviewHeight)
+        override fun onSurfaceTextureDestroyed(p0: SurfaceTexture?): Boolean {
+            return false
+        }
 
-                    val previewSurface = surfaceView.holder.surface
+        override fun onSurfaceTextureAvailable(p0: SurfaceTexture?, p1: Int, p2: Int) {
+            setUpCamera()
+            openCamera()
+        }
+    }
 
-                    val captureCallback = object : CameraCaptureSession.StateCallback()
-                    {
-                        override fun onConfigureFailed(session: CameraCaptureSession) {}
+    val stateCallback = object : CameraDevice.StateCallback() {
+        override fun onOpened(cameraDevice: CameraDevice) {
+            mCameraDevice = cameraDevice;
+            createPreviewSession();
+        }
 
-                        override fun onConfigured(session: CameraCaptureSession) {
-                            // session configured
-                            val previewRequestBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
-                                .apply {
-                                    addTarget(previewSurface)
-                                }
-                            session.setRepeatingRequest(
-                                previewRequestBuilder.build(),
-                                object: CameraCaptureSession.CaptureCallback() {},
-                                Handler { true }
-                            )
-                        }
+        override fun onDisconnected(cameraDevice: CameraDevice) {
+            cameraDevice.close();
+            mCameraDevice = null;
+        }
+
+        override fun onError(cameraDevice: CameraDevice, error: Int) {
+            cameraDevice.close();
+            mCameraDevice = null;
+        }
+    }
+
+    private fun setUpCamera() {
+        try {
+            for (id in cameraManager.cameraIdList) {
+                val cameraCharacteristics =
+                        cameraManager.getCameraCharacteristics(id);
+                if (cameraCharacteristics.get(CameraCharacteristics.LENS_FACING) ==
+                        cameraFacing) {
+                    val streamConfigurationMap = cameraCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+                    streamConfigurationMap?.getOutputSizes(SurfaceTexture::class.java).let { sizes ->
+                        previewSize = sizes!![0]
                     }
-
-                    camera.createCaptureSession(mutableListOf(previewSurface), captureCallback, Handler { true })
+                    cameraId = id;
                 }
             }
-        }
-        override fun onClosed(camera: CameraDevice) { }
-        override fun onDisconnected(camera: CameraDevice) { }
-        override fun onError(camera: CameraDevice, error: Int) { }
-    }
-
-    val surfaceReadyCallback = object: SurfaceHolder.Callback {
-        override fun surfaceChanged(p0: SurfaceHolder?, p1: Int, p2: Int, p3: Int) { }
-        override fun surfaceDestroyed(p0: SurfaceHolder?) { }
-
-        override fun surfaceCreated(p0: SurfaceHolder?) {
-            startCameraSession()
+        } catch (e: CameraAccessException) {
+            e.printStackTrace()
         }
     }
 
-    private fun areDimensionsSwapped(displayRotation: Int, cameraCharacteristics: CameraCharacteristics): Boolean {
-        var swappedDimensions = false
-        when (displayRotation) {
-            Surface.ROTATION_0, Surface.ROTATION_180 -> {
-                if (cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) == 90 || cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) == 270) {
-                    swappedDimensions = true
-                }
+    private fun openCamera() {
+        try {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED
+            ) {
+                cameraManager.openCamera(cameraId, stateCallback, Handler { true })
             }
-            Surface.ROTATION_90, Surface.ROTATION_270 -> {
-                if (cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) == 0 || cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) == 180) {
-                    swappedDimensions = true
+        } catch (e: CameraAccessException) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun createPreviewSession() {
+        val surfaceTexture = textureView.surfaceTexture
+        surfaceTexture.setDefaultBufferSize(previewSize.width, previewSize.height)
+        val previewSurface = Surface(surfaceTexture)
+        mCaptureRequestBuilder = mCameraDevice?.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+        mCaptureRequestBuilder?.addTarget(previewSurface)
+
+        mCameraDevice?.createCaptureSession(
+            mutableListOf(previewSurface),
+            object : CameraCaptureSession.StateCallback() {
+                override fun onConfigureFailed(p0: CameraCaptureSession) {
                 }
-            }
-            else -> {
-                // invalid display rotation
+
+                override fun onConfigured(cameraCaptureSession: CameraCaptureSession) {
+                    if (mCameraDevice == null) return
+
+                    val captureRequest = mCaptureRequestBuilder?.build()
+                    mCameraCaptureSession = cameraCaptureSession
+                    cameraCaptureSession.setRepeatingRequest(captureRequest!!, null, Handler { true });
+                }
+
+            },
+            Handler { true }
+        )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (textureView.isAvailable()) {
+            setUpCamera()
+            openCamera()
+        } else {
+            textureView.setSurfaceTextureListener(surfaceTextureListener);
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        closeCamera()
+    }
+
+    private fun closeCamera() {
+        if (mCameraCaptureSession != null) {
+            mCameraCaptureSession!!.close()
+            mCameraCaptureSession = null
+        }
+        if (mCameraDevice != null) {
+            mCameraDevice!!.close()
+            mCameraDevice = null
+        }
+    }
+
+
+    private fun createImageGallery() {
+        val storageDirectory = externalMediaDirs[0].absolutePath
+        galleryFolder = File(storageDirectory, resources.getString(R.string.app_name))
+        if (!galleryFolder.exists()) {
+            val wasCreated = galleryFolder.mkdirs()
+            if (!wasCreated) {
+                Log.e(TAG, "Failed to create a directory")
             }
         }
-        return swappedDimensions
+    }
+
+    private fun createImageFile(): File? {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val imageFileName = "image_" + timeStamp + "_"
+        return File.createTempFile(imageFileName, ".jpg", galleryFolder)
+    }
+
+    private fun lock() {
+        try {
+            mCameraCaptureSession?.capture(
+                mCaptureRequestBuilder!!.build(),
+                null, Handler { true }
+            )
+        } catch (e: CameraAccessException) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun unlock() {
+        try {
+            mCameraCaptureSession?.setRepeatingRequest(
+                mCaptureRequestBuilder!!.build(),
+                null, Handler { true }
+            )
+        } catch (e: CameraAccessException) {
+            e.printStackTrace()
+        }
+    }
+
+    fun onCaptureButtonClicked(view: View?) {
+        Log.i(TAG, "Photo taken")
+        lock()
+        var outputPhoto: FileOutputStream? = null
+        try {
+            outputPhoto = FileOutputStream(createImageFile())
+            textureView.getBitmap()
+                .compress(Bitmap.CompressFormat.PNG, 100, outputPhoto)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            unlock()
+            try {
+                if (outputPhoto != null) {
+                    outputPhoto.close()
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
     }
 }

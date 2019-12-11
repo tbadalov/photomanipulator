@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">PhotoManipulation</string>
+    <string name="sync_with_cloud">Sync with cloud</string>
 </resources>

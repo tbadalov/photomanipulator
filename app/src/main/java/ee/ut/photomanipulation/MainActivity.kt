@@ -9,6 +9,8 @@ import android.provider.MediaStore.Images.Media.BUCKET_DISPLAY_NAME
 import android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 import android.provider.MediaStore.MediaColumns
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -18,7 +20,6 @@ class MainActivity : AppCompatActivity() {
     val MAIN_ACTIVITY = "mainActivity"
     val REQUEST_IMAGE_CAPTURE = 1
     var pictureAdapter: PictureAdapter? = null
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +32,11 @@ class MainActivity : AppCompatActivity() {
             Log.v(MAIN_ACTIVITY, "fab")
             dispatchTakePictureIntent()
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.options_menu, menu)
+        return true
     }
 
     private fun initPictureAdapter(cursor: Cursor) {
@@ -53,4 +59,10 @@ class MainActivity : AppCompatActivity() {
             MediaStore.Images.Media.insertImage(contentResolver ,imageBitmap ,"" , "")
         }
     }
+
+    fun startSettingsActivity(menu: MenuItem){
+        val intent = Intent(applicationContext, SettingsActivity::class.java)
+        startActivity(intent)
+    }
+
 }

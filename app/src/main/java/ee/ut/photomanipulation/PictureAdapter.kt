@@ -1,18 +1,15 @@
 package ee.ut.photomanipulation
 
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
-import android.net.Uri
 import android.provider.MediaStore
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CursorAdapter
 import android.widget.ImageView
-import java.io.File
+import com.bumptech.glide.Glide
 
 class PictureAdapter(context: Context, cursor: Cursor) : CursorAdapter(
     context, cursor, true
@@ -27,17 +24,16 @@ class PictureAdapter(context: Context, cursor: Cursor) : CursorAdapter(
         val pictureView = view?.findViewById<ImageView>(R.id.picture)
 
         val imagePath = cursor?.getString(columnIndexData!!)
-        val imageUri = Uri.fromFile(File(imagePath))
-        var bitmap = MediaStore.Images.Media.getBitmap(
-            context?.contentResolver,
-            Uri.fromFile(File(imagePath))
-        )
-        pictureView?.setImageBitmap(bitmap)
+        Glide
+            .with(context!!)
+            .load(imagePath)
+            .centerCrop()
+            .into(pictureView!!)
 
-        pictureView?.setOnClickListener { view ->
+        pictureView.setOnClickListener {
             val intent = Intent(context, PhotoEditActivity::class.java)
             intent.putExtra("imagePath", imagePath)
-            context?.startActivity(intent)
+            context.startActivity(intent)
         }
     }
 }

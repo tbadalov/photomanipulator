@@ -41,8 +41,6 @@ class CameraActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera)
-        createImageGallery()
-
         cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
     }
 
@@ -159,22 +157,6 @@ class CameraActivity : AppCompatActivity() {
             mCameraDevice!!.close()
             mCameraDevice = null
         }
-    }
-
-
-    private fun createImageGallery() {
-        val storageDirectory = externalMediaDirs[0].absolutePath
-        galleryFolder = File(storageDirectory, resources.getString(R.string.app_name))
-        if (!galleryFolder.exists()) {
-            val wasCreated = galleryFolder.mkdirs()
-            if (!wasCreated) {
-                Log.e(TAG, "Failed to create a directory")
-            }
-        }
-    }
-
-    private fun createImageFile(): File? {
-        return File.createTempFile(createImageName(), ".jpg", galleryFolder)
     }
 
     private fun createImageName(): String {

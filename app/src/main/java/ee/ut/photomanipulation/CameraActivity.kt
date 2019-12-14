@@ -9,6 +9,7 @@ import android.hardware.camera2.*
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
+import android.provider.MediaStore
 import android.util.Log
 import android.util.Size
 import android.view.Surface
@@ -173,9 +174,13 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private fun createImageFile(): File? {
+        return File.createTempFile(createImageName(), ".jpg", galleryFolder)
+    }
+
+    private fun createImageName(): String {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val imageFileName = "image_" + timeStamp + "_"
-        return File.createTempFile(imageFileName, ".jpg", galleryFolder)
+        return imageFileName
     }
 
     private fun lock() {
@@ -205,9 +210,9 @@ class CameraActivity : AppCompatActivity() {
         lock()
         var outputPhoto: FileOutputStream? = null
         try {
-            outputPhoto = FileOutputStream(createImageFile())
-            textureView.getBitmap()
-                .compress(Bitmap.CompressFormat.PNG, 100, outputPhoto)
+            //outputPhoto = FileOutputStream(createImageFile())
+            val bitmap = textureView.getBitmap()
+            MediaStore.Images.Media.insertImage(contentResolver, bitmap, createImageName(), "")
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {

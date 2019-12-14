@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity() {
 
     val MAIN_ACTIVITY = "mainActivity"
     val REQUEST_IMAGE_CAPTURE = 1
+    val REQUEST_CAMERA_API = 2
     var pictureAdapter: PictureAdapter? = null
     var permissions = arrayOf(
         Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -52,10 +53,14 @@ class MainActivity : AppCompatActivity() {
         val cursor = contentResolver.query(uri, projection, null, null, MediaColumns.DATE_ADDED + " DESC")!!
         initPictureAdapter(cursor)
 
+        fab.setOnClickListener {
+            Log.v(MAIN_ACTIVITY, "fab")
+            dispatchTakePictureIntent()
+        }
 
         fab2.setOnClickListener {
             val intent = Intent(this, CameraActivity::class.java)
-            startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
+            startActivityForResult(intent, REQUEST_CAMERA_API)
         }
     }
 
@@ -80,7 +85,15 @@ class MainActivity : AppCompatActivity() {
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == REQUEST_IMAGE_CAPTURE ) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            val imageBitmap = data?.extras?.get("data") as Bitmap
+            val insertImage =
+                MediaStore.Images.Media.insertImage(contentResolver, imageBitmap, "", "")
+            val settings = getSharedPreferences("settings", 0)
+            if(settings.getBoolean("cloudSync", false)) uploadToFireStorage(insertImage)
+
+        }
+        else if (requestCode == REQUEST_CAMERA_API ) {
             val imageUri = data?.extras?.get("imageUri") as String
             val settings = getSharedPreferences("settings", 0)
             if(settings.getBoolean("cloudSync", false)) uploadToFireStorage(imageUri)
@@ -99,23 +112,6 @@ class MainActivity : AppCompatActivity() {
                 .show()
         })
     }
-
-    //Code to query a picture from fireStore.
-   /* private fun getPicturesFromFireStorage(){
-        val localFile = File.createTempFile("images", "jpg")
-        val riversRef = mStorageRef?.getReferenceFromUrl("gs://photomanipulation-7e275.appspot.com/storage/emulated/0/Pictures/1576253672849.jpg")
-        riversRef?.getFile(localFile)
-            ?.addOnSuccessListener {
-                // Successfully downloaded data to local file
-                Toast.makeText(this, "Picture uploaded to the cloud!", Toast.LENGTH_LONG).show()
-
-            }?.addOnFailureListener {
-                Toast.makeText(this, "Failed to upload picture to the cloud!", Toast.LENGTH_LONG)
-                    .show()
-            }
-    }*/
-
-
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -156,5 +152,13 @@ class MainActivity : AppCompatActivity() {
     fun startSettingsActivity(menu: MenuItem){
         val intent = Intent(applicationContext, SettingsActivity::class.java)
         startActivity(intent)
+    }
+
+    private fun dispatchTakePictureIntent() {
+        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+            takePictureIntent.resolveActivity(packageManager)?.also {
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+            }
+        }
     }
 }

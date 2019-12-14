@@ -1,14 +1,16 @@
 package ee.ut.photomanipulation
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.Matrix
+import android.graphics.RectF
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.*
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
 import android.provider.MediaStore
 import android.util.Log
@@ -48,9 +50,14 @@ class CameraActivity : AppCompatActivity() {
     }
 
     val surfaceTextureListener = object : TextureView.SurfaceTextureListener {
-        override fun onSurfaceTextureSizeChanged(p0: SurfaceTexture?, p1: Int, p2: Int) { }
+        override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture?, width: Int, height: Int) {
+            Log.i(TAG, "onSurfaceTextureSizeChanged")
+        }
 
-        override fun onSurfaceTextureUpdated(p0: SurfaceTexture?) { }
+        override fun onSurfaceTextureUpdated(surface: SurfaceTexture?) {
+            val matrix = configureTransformMatrix(textureView.width, textureView.height)
+            textureView.setTransform(matrix)
+        }
 
         override fun onSurfaceTextureDestroyed(p0: SurfaceTexture?): Boolean {
             return false
@@ -190,17 +197,37 @@ class CameraActivity : AppCompatActivity() {
         }
     }
 
+    private fun configureTransformMatrix(viewWidth: Int, viewHeight: Int): Matrix {
+        val rotation = windowManager.defaultDisplay.rotation
+        val matrix = Matrix()
+        val viewRect = RectF(0f, 0f, viewWidth.toFloat(), viewHeight.toFloat())
+        val bufferRect = RectF(0f, 0f, textureView.height.toFloat(), textureView.width.toFloat())
+        val centerX = viewRect.centerX()
+        val centerY = viewRect.centerY()
+        if (Surface.ROTATION_90 == rotation || Surface.ROTATION_270 == rotation) {
+            bufferRect.offset(centerX - bufferRect.centerX(), centerY - bufferRect.centerY())
+            matrix.setRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.FILL)
+            val scale: Float = Math.max(
+                viewHeight.toFloat() / textureView.getHeight(),
+                viewWidth.toFloat() / textureView.getWidth()
+            )
+            matrix.postScale(scale, scale, centerX, centerY)
+            matrix.postRotate(90f * (rotation - 2), centerX, centerY)
+        } else if (Surface.ROTATION_180 == rotation) {
+            matrix.postRotate(180f, centerX, centerY)
+        }
+        return matrix
+    }
+
     fun onCaptureButtonClicked(view: View?) {
         Log.i(TAG, "Photo taken")
         lock()
-        var outputPhoto: FileOutputStream? = null
         try {
-            //outputPhoto = FileOutputStream(createImageFile())
-            val bitmap = textureView.getBitmap()
-
-            val insertImage =
-                MediaStore.Images.Media.insertImage(contentResolver, bitmap, createImageName(), "")
-
+            var bitmap = textureView.getBitmap()
+            val matrix = configureTransformMatrix(textureView.width, textureView.height)
+            // rotate matrix based on rotation
+            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+            val insertImage = MediaStore.Images.Media.insertImage(contentResolver, bitmap, createImageName(), "")
             val resultIntent = Intent()
             resultIntent.putExtra("imageUri", insertImage)
             setResult(3, resultIntent)
@@ -209,13 +236,6 @@ class CameraActivity : AppCompatActivity() {
             e.printStackTrace()
         } finally {
             unlock()
-            try {
-                if (outputPhoto != null) {
-                    outputPhoto.close()
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
         }
     }
 }

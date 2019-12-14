@@ -3,6 +3,7 @@ package ee.ut.photomanipulation
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Matrix
@@ -226,7 +227,11 @@ class CameraActivity : AppCompatActivity() {
             val matrix = configureTransformMatrix(textureView.width, textureView.height)
             // rotate matrix based on rotation
             bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-            MediaStore.Images.Media.insertImage(contentResolver, bitmap, createImageName(), "")
+            val insertImage = MediaStore.Images.Media.insertImage(contentResolver, bitmap, createImageName(), "")
+            val resultIntent = Intent()
+            resultIntent.putExtra("imageUri", insertImage)
+            setResult(3, resultIntent)
+            finish()
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {

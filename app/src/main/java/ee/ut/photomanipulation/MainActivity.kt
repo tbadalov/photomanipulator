@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity() {
             if(settings.getBoolean("cloudSync", false)) uploadToFireStorage(insertImage)
 
         }
-        else if (requestCode == REQUEST_CAMERA_API ) {
+        else if (requestCode == REQUEST_CAMERA_API && resultCode == RESULT_OK) {
             val imageUri = data?.extras?.get("imageUri") as String
             val settings = getSharedPreferences("settings", 0)
             if(settings.getBoolean("cloudSync", false)) uploadToFireStorage(imageUri)

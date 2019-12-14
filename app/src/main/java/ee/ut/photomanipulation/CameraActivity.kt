@@ -9,6 +9,7 @@ import android.hardware.camera2.*
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
+import android.provider.MediaStore
 import android.util.Log
 import android.util.Size
 import android.view.Surface
@@ -25,6 +26,8 @@ import java.util.*
 
 
 class CameraActivity : AppCompatActivity() {
+    // Most of the code in this class is inspired by
+    // https://android.jlelse.eu/the-least-you-can-do-with-camera2-api-2971c8c81b8b
 
     val TAG = "CameraActivity"
 
@@ -40,8 +43,6 @@ class CameraActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera)
-        createImageGallery()
-
         cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
     }
 
@@ -160,22 +161,10 @@ class CameraActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun createImageGallery() {
-        val storageDirectory = externalMediaDirs[0].absolutePath
-        galleryFolder = File(storageDirectory, resources.getString(R.string.app_name))
-        if (!galleryFolder.exists()) {
-            val wasCreated = galleryFolder.mkdirs()
-            if (!wasCreated) {
-                Log.e(TAG, "Failed to create a directory")
-            }
-        }
-    }
-
-    private fun createImageFile(): File? {
+    private fun createImageName(): String {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val imageFileName = "image_" + timeStamp + "_"
-        return File.createTempFile(imageFileName, ".jpg", galleryFolder)
+        return imageFileName
     }
 
     private fun lock() {
@@ -205,9 +194,9 @@ class CameraActivity : AppCompatActivity() {
         lock()
         var outputPhoto: FileOutputStream? = null
         try {
-            outputPhoto = FileOutputStream(createImageFile())
-            textureView.getBitmap()
-                .compress(Bitmap.CompressFormat.PNG, 100, outputPhoto)
+            //outputPhoto = FileOutputStream(createImageFile())
+            val bitmap = textureView.getBitmap()
+            MediaStore.Images.Media.insertImage(contentResolver, bitmap, createImageName(), "")
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {

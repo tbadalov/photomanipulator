@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">PhotoManipulation</string>
     <string name="sync_with_cloud">Sync with cloud</string>
+    <string name="use_custom_camera">Use custom camera</string>
 </resources>

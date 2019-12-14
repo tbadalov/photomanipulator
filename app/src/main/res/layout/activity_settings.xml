@@ -11,4 +11,13 @@
         android:layout_marginStart="30dp"
         android:layout_marginEnd="30dp"
         android:text="@string/sync_with_cloud" />
+
+    <Switch
+        android:id="@+id/setting_camera"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:text="@string/use_custom_camera" />
+
 </LinearLayout>

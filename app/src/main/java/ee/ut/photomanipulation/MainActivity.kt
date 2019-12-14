@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.provider.MediaStore.Images.Media.BUCKET_DISPLAY_NAME
@@ -17,7 +18,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.gms.tasks.OnFailureListener
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
@@ -29,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         Manifest.permission.READ_EXTERNAL_STORAGE,
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
         Manifest.permission.CAMERA)
-
+    private var mStorageRef: FirebaseStorage? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +42,7 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(this, permissions, 10)
         } else {
             initApplication()
+            mStorageRef = FirebaseStorage.getInstance()
         }
     }
 
@@ -47,14 +52,10 @@ class MainActivity : AppCompatActivity() {
         val cursor = contentResolver.query(uri, projection, null, null, MediaColumns.DATE_ADDED + " DESC")!!
         initPictureAdapter(cursor)
 
-        fab.setOnClickListener {
-            Log.v(MAIN_ACTIVITY, "fab")
-            dispatchTakePictureIntent()
-        }
 
         fab2.setOnClickListener {
             val intent = Intent(this, CameraActivity::class.java)
-            startActivity(intent)
+            startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
         }
     }
 
@@ -78,20 +79,44 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun dispatchTakePictureIntent() {
-        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
-            takePictureIntent.resolveActivity(packageManager)?.also {
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
-            }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE ) {
+            val imageUri = data?.extras?.get("imageUri") as String
+            val settings = getSharedPreferences("settings", 0)
+            if(settings.getBoolean("cloudSync", false)) uploadToFireStorage(imageUri)
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            val imageBitmap = data?.extras?.get("data") as Bitmap
-            MediaStore.Images.Media.insertImage(contentResolver ,imageBitmap ,"" , "")
-        }
+    private fun uploadToFireStorage(insertImage: String?) {
+        val path = getPath(Uri.parse(insertImage))
+        val file = Uri.fromFile(File(path!!))
+        val riversRef = mStorageRef?.reference?.child(path)
+
+        riversRef?.putFile(file)?.addOnSuccessListener { taskSnapshot ->
+            Toast.makeText(this, "Picture uploaded to the cloud!", Toast.LENGTH_LONG).show()
+        }?.addOnFailureListener(OnFailureListener {
+            Toast.makeText(this, "Failed to upload picture to the cloud!", Toast.LENGTH_LONG)
+                .show()
+        })
     }
+
+    //Code to query a picture from fireStore.
+   /* private fun getPicturesFromFireStorage(){
+        val localFile = File.createTempFile("images", "jpg")
+        val riversRef = mStorageRef?.getReferenceFromUrl("gs://photomanipulation-7e275.appspot.com/storage/emulated/0/Pictures/1576253672849.jpg")
+        riversRef?.getFile(localFile)
+            ?.addOnSuccessListener {
+                // Successfully downloaded data to local file
+                Toast.makeText(this, "Picture uploaded to the cloud!", Toast.LENGTH_LONG).show()
+
+            }?.addOnFailureListener {
+                Toast.makeText(this, "Failed to upload picture to the cloud!", Toast.LENGTH_LONG)
+                    .show()
+            }
+    }*/
+
+
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
@@ -116,9 +141,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun getPath(uri: Uri?): String? {
+        val projection = arrayOf(MediaStore.Images.Media.DATA)
+        val cursor = managedQuery(uri, projection, null, null, null)
+        if (cursor != null) {
+            val column_index = cursor
+                .getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+            cursor.moveToFirst()
+            return cursor.getString(column_index)
+        }
+        return uri?.path
+    }
+
     fun startSettingsActivity(menu: MenuItem){
         val intent = Intent(applicationContext, SettingsActivity::class.java)
         startActivity(intent)
     }
-
 }

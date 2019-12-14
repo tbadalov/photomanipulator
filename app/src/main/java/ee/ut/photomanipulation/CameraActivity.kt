@@ -2,6 +2,7 @@ package ee.ut.photomanipulation
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.SurfaceTexture
@@ -196,7 +197,14 @@ class CameraActivity : AppCompatActivity() {
         try {
             //outputPhoto = FileOutputStream(createImageFile())
             val bitmap = textureView.getBitmap()
-            MediaStore.Images.Media.insertImage(contentResolver, bitmap, createImageName(), "")
+
+            val insertImage =
+                MediaStore.Images.Media.insertImage(contentResolver, bitmap, createImageName(), "")
+
+            val resultIntent = Intent()
+            resultIntent.putExtra("imageUri", insertImage)
+            setResult(3, resultIntent)
+            finish()
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {

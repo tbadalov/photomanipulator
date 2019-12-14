@@ -14,6 +14,7 @@ import android.provider.MediaStore.MediaColumns
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -39,6 +40,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         if (!hasPermissions()) {
             ActivityCompat.requestPermissions(this, permissions, 10)
         } else {
@@ -47,20 +49,33 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initApplication(){
+    override fun onResume() {
+        super.onResume()
+        initCamera()
+    }
+
+    private fun initApplication() {
         val uri = EXTERNAL_CONTENT_URI
         val projection = arrayOf(MediaColumns.DATA, BUCKET_DISPLAY_NAME, MediaColumns._ID)
         val cursor = contentResolver.query(uri, projection, null, null, MediaColumns.DATE_ADDED + " DESC")!!
         initPictureAdapter(cursor)
+        initCamera()
 
-        fab.setOnClickListener {
-            Log.v(MAIN_ACTIVITY, "fab")
-            dispatchTakePictureIntent()
-        }
+    }
 
-        fab2.setOnClickListener {
-            val intent = Intent(this, CameraActivity::class.java)
-            startActivityForResult(intent, REQUEST_CAMERA_API)
+    private fun initCamera() {
+        val settings = getSharedPreferences("settings", 0)
+        val useCustomCamera = settings.getBoolean("useCustomCamera", false)
+
+        if (useCustomCamera) {
+            fab.setOnClickListener {
+                val intent = Intent(this, CameraActivity::class.java)
+                startActivityForResult(intent, REQUEST_CAMERA_API)
+            }
+        } else {
+            fab.setOnClickListener {
+                dispatchTakePictureIntent()
+            }
         }
     }
 

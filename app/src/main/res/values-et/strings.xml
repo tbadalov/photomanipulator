@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Pildi manipuleerija</string>
+    <string name="sync_with_cloud">Sünkroniseeri pilvega</string>
+    <string name="use_custom_camera">Kasuta rakenduse kaamerat</string>
+    <string name="no_permission">Rakendusele ei antud piisavalt õigusi!</string>
+    <string name="picture_upload_success">Pildi laadimine pilve õnnestus!</string>
+    <string name="picture_upload_fail">Pildi laadimine pilve ebaõnnestus!</string>
+</resources>

@@ -11,10 +11,8 @@ import android.provider.MediaStore
 import android.provider.MediaStore.Images.Media.BUCKET_DISPLAY_NAME
 import android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 import android.provider.MediaStore.MediaColumns
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -121,9 +119,9 @@ class MainActivity : AppCompatActivity() {
         val riversRef = mStorageRef?.reference?.child(path)
 
         riversRef?.putFile(file)?.addOnSuccessListener { taskSnapshot ->
-            Toast.makeText(this, "Picture uploaded to the cloud!", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, R.string.picture_upload_success, Toast.LENGTH_LONG).show()
         }?.addOnFailureListener(OnFailureListener {
-            Toast.makeText(this, "Failed to upload picture to the cloud!", Toast.LENGTH_LONG)
+            Toast.makeText(this, R.string.picture_upload_fail, Toast.LENGTH_LONG)
                 .show()
         })
     }
@@ -140,7 +138,7 @@ class MainActivity : AppCompatActivity() {
                     if (result == PackageManager.PERMISSION_DENIED) {
                         Toast.makeText(
                             this,
-                            "Permission denied, application will not work as expected!",
+                            R.string.no_permission,
                             Toast.LENGTH_SHORT
                         )
                             .show()

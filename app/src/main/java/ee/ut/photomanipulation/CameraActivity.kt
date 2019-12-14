@@ -26,6 +26,8 @@ import java.util.*
 
 
 class CameraActivity : AppCompatActivity() {
+    // Most of the code in this class is inspired by
+    // https://android.jlelse.eu/the-least-you-can-do-with-camera2-api-2971c8c81b8b
 
     val TAG = "CameraActivity"
 

@@ -12,6 +12,7 @@ import com.soundcloud.android.crop.Crop
 import ee.ut.photomanipulation.FileUtil.Companion.tmpFile
 import ee.ut.photomanipulation.history.EventHistory
 import ee.ut.photomanipulation.operations.MirrorOperation
+import ee.ut.photomanipulation.operations.SaveOperation
 import kotlinx.android.synthetic.main.activity_photo_edit.*
 import java.io.File
 import java.lang.ref.WeakReference
@@ -76,9 +77,7 @@ class PhotoEditActivity : AppCompatActivity() {
                 if (!history.canRedo()) { item.isEnabled = false }
                 return true
             }
-            R.id.save -> {
-
-            }
+            R.id.save -> { SaveOperation(loadingFeedback, history, this).execute() }
         }
 
         return false

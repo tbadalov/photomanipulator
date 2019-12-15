@@ -23,6 +23,8 @@ class EventHistory(baseImageLocation:Uri) {
         return history[++historyPosition]
     }
 
+    fun current() : Uri { return history[historyPosition] }
+
     fun perform(uri:Uri) {
         if (canRedo()) { history.subList(historyPosition+1, history.size).clear() }
         history.add(uri)

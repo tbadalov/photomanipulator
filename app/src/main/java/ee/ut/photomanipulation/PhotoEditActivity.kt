@@ -58,14 +58,14 @@ class PhotoEditActivity : AppCompatActivity() {
         when(item.itemId) {
             R.id.undo -> {
                 loadingFeedback.drawPicture(history.undo())
-                redo.isVisible = true
-                if (!history.canUndo()) { item.isVisible = false }
+                redo.isEnabled = true
+                if (!history.canUndo()) { item.isEnabled = false }
                 return true
             }
             R.id.redo -> {
                 loadingFeedback.drawPicture(history.redo())
-                undo.isVisible = true
-                if (!history.canRedo()) { item.isVisible = false }
+                undo.isEnabled = true
+                if (!history.canRedo()) { item.isEnabled = false }
                 return true
             }
             R.id.save -> {

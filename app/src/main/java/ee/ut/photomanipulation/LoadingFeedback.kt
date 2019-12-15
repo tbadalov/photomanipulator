@@ -35,8 +35,8 @@ class LoadingFeedback(progressBar:ProgressBar, activity: AppCompatActivity) {
     }
 
     fun onOperationFinished() {
-        menu.get()?.findItem(R.id.undo)?.isVisible = true
-        menu.get()?.findItem(R.id.redo)?.isVisible = false
+        menu.get()?.findItem(R.id.undo)?.isEnabled = true
+        menu.get()?.findItem(R.id.redo)?.isEnabled = false
     }
 
 }

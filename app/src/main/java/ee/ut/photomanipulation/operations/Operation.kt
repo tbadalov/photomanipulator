@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.AsyncTask
+import ee.ut.photomanipulation.FileUtil.Companion.tmpFile
 import ee.ut.photomanipulation.LoadingFeedback
 import ee.ut.photomanipulation.history.EventHistory
 import java.io.File
@@ -35,7 +36,7 @@ abstract class Operation(loadingFeedback:LoadingFeedback, history:EventHistory, 
     }
 
     private fun saveToFile(bitmap: Bitmap) : String {
-        val outputFile = File.createTempFile("tmp", ".jpg", context.cacheDir)
+        val outputFile = tmpFile(context)
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputFile.outputStream())
         return outputFile.path.toString()
     }

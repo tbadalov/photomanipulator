@@ -1,5 +1,6 @@
 package ee.ut.photomanipulation.operations
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -9,10 +10,11 @@ import ee.ut.photomanipulation.history.EventHistory
 import java.io.File
 
 
-abstract class Operation(loadingFeedback:LoadingFeedback, history:EventHistory) : AsyncTask<String, Void, String>() {
+abstract class Operation(loadingFeedback:LoadingFeedback, history:EventHistory, context: Context) : AsyncTask<String, Void, String>() {
 
     val loadingFeedback = loadingFeedback
     val history = history
+    val context = context
 
     override fun onPreExecute() {
         loadingFeedback.showLoading()
@@ -24,7 +26,7 @@ abstract class Operation(loadingFeedback:LoadingFeedback, history:EventHistory) 
         return saveToFile(dst)
     }
 
-    override fun onPostExecute(resultPath: String?) {
+    override fun onPostExecute(resultPath: String) {
         val resultUri = Uri.fromFile(File(resultPath))
         history.perform(resultUri)
         loadingFeedback.drawPicture(resultUri)
@@ -33,7 +35,9 @@ abstract class Operation(loadingFeedback:LoadingFeedback, history:EventHistory) 
     }
 
     private fun saveToFile(bitmap: Bitmap) : String {
-        return "/storage/emulated/0/output.jpeg" //TODO to real saving to temp file with random name
+        val outputFile = File.createTempFile("tmp", ".jpg", context.cacheDir)
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputFile.outputStream())
+        return outputFile.path.toString()
     }
 
     abstract fun perform(src: Bitmap) : Bitmap

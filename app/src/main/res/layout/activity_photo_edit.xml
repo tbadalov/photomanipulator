@@ -60,14 +60,14 @@
                 android:layout_marginHorizontal="12dp"/>
 
             <ImageView
-                android:id="@+id/btn_mirror_vertical"
+                android:id="@+id/btn_mirror_v"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/image_crop"
                 android:layout_marginHorizontal="12dp"/>
 
             <ImageView
-                android:id="@+id/btn_mirror_horizontal"
+                android:id="@+id/btn_mirror_h"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/image_crop"

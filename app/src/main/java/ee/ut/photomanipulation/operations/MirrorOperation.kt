@@ -1,11 +1,12 @@
 package ee.ut.photomanipulation.operations
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import ee.ut.photomanipulation.LoadingFeedback
 import ee.ut.photomanipulation.history.EventHistory
 
-class MirrorOperation(loadingFeedback: LoadingFeedback, history: EventHistory, isHorizontal:Boolean) : Operation(loadingFeedback, history) {
+class MirrorOperation(loadingFeedback: LoadingFeedback, history: EventHistory, context: Context, isHorizontal:Boolean) : Operation(loadingFeedback, history, context) {
 
     val isHorizontal = isHorizontal
 

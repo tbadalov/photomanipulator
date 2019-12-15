@@ -36,8 +36,8 @@ class PhotoEditActivity : AppCompatActivity() {
         loadingFeedback.drawPicture(imageUri)
 
         btn_crop.setOnClickListener{ view -> Crop.of(imageUri, outUri).start(this)}
-        btn_mirror_vertical.setOnClickListener{ view -> MirrorOperation(loadingFeedback, history, false).execute() }
-        btn_mirror_horizontal.setOnClickListener{ view -> MirrorOperation(loadingFeedback, history, true).execute() }
+        btn_mirror_v.setOnClickListener{ view -> MirrorOperation(loadingFeedback, history, this, false).execute() }
+        btn_mirror_h.setOnClickListener{ view -> MirrorOperation(loadingFeedback, history, this, true).execute() }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, result: Intent?) {

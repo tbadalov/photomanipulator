@@ -7,7 +7,9 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import com.soundcloud.android.crop.Crop
+import ee.ut.photomanipulation.FileUtil.Companion.tmpFile
 import ee.ut.photomanipulation.history.EventHistory
 import ee.ut.photomanipulation.operations.MirrorOperation
 import kotlinx.android.synthetic.main.activity_photo_edit.*
@@ -21,6 +23,7 @@ class PhotoEditActivity : AppCompatActivity() {
     private lateinit var undo:MenuItem
     private lateinit var redo:MenuItem
     private lateinit var loadingFeedback: LoadingFeedback
+    private var cropOutput:Uri = Uri.EMPTY
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,14 +38,19 @@ class PhotoEditActivity : AppCompatActivity() {
         val outUri = Uri.parse("file:///storage/emulated/0/output.jpeg")
         loadingFeedback.drawPicture(imageUri)
 
-        btn_crop.setOnClickListener{ view -> Crop.of(imageUri, outUri).start(this)}
+        btn_crop.setOnClickListener{ view ->
+            cropOutput = tmpFile(this).toUri()
+            Crop.of(imageUri, cropOutput).start(this)
+        }
         btn_mirror_v.setOnClickListener{ view -> MirrorOperation(loadingFeedback, history, this, false).execute() }
         btn_mirror_h.setOnClickListener{ view -> MirrorOperation(loadingFeedback, history, this, true).execute() }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, result: Intent?) {
         if (requestCode == Crop.REQUEST_CROP && resultCode == Activity.RESULT_OK) {
-            //show cropped pic
+            history.perform(cropOutput)
+            loadingFeedback.drawPicture(cropOutput)
+            loadingFeedback.onOperationFinished()
         }
     }
 

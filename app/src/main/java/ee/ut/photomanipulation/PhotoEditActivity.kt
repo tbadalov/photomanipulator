@@ -12,6 +12,7 @@ import com.soundcloud.android.crop.Crop
 import ee.ut.photomanipulation.FileUtil.Companion.tmpFile
 import ee.ut.photomanipulation.history.EventHistory
 import ee.ut.photomanipulation.operations.MirrorOperation
+import ee.ut.photomanipulation.operations.RotateOperation
 import ee.ut.photomanipulation.operations.SaveOperation
 import kotlinx.android.synthetic.main.activity_photo_edit.*
 import java.io.File
@@ -43,6 +44,8 @@ class PhotoEditActivity : AppCompatActivity() {
             cropOutput = tmpFile(this).toUri()
             Crop.of(imageUri, cropOutput).start(this)
         }
+        btn_rotate_left.setOnClickListener{ view -> RotateOperation(loadingFeedback, history, this, true).execute() }
+        btn_rotate_right.setOnClickListener{ view -> RotateOperation(loadingFeedback, history, this, false).execute() }
         btn_mirror_v.setOnClickListener{ view -> MirrorOperation(loadingFeedback, history, this, false).execute() }
         btn_mirror_h.setOnClickListener{ view -> MirrorOperation(loadingFeedback, history, this, true).execute() }
     }

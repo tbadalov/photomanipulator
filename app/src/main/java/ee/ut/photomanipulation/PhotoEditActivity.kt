@@ -42,7 +42,7 @@ class PhotoEditActivity : AppCompatActivity() {
 
         btn_crop.setOnClickListener{ view ->
             cropOutput = tmpFile(this).toUri()
-            Crop.of(imageUri, cropOutput).start(this)
+            Crop.of(history.current(), cropOutput).start(this)
         }
         btn_rotate_left.setOnClickListener{ view -> RotateOperation(loadingFeedback, history, this, true).execute() }
         btn_rotate_right.setOnClickListener{ view -> RotateOperation(loadingFeedback, history, this, false).execute() }

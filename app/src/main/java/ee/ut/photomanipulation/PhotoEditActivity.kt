@@ -37,7 +37,6 @@ class PhotoEditActivity : AppCompatActivity() {
         val imageUri = Uri.fromFile(File(imagePath))
         history = EventHistory(imageUri)
 
-        val outUri = Uri.parse("file:///storage/emulated/0/output.jpeg")
         loadingFeedback.drawPicture(imageUri)
 
         btn_crop.setOnClickListener{ view ->

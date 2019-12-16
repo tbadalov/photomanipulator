@@ -39,4 +39,8 @@ class LoadingFeedback(progressBar:ProgressBar, activity: AppCompatActivity) {
         menu.get()?.findItem(R.id.redo)?.isEnabled = false
     }
 
+    fun finish() {
+        activity.get()?.finish()
+    }
+
 }

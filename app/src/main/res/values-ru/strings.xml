@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Фото манипуляции</string>
+    <string name="sync_with_cloud">Синхронизировать с облаком</string>
+    <string name="use_custom_camera">Использовать пользовательскую камеру</string>
+    <string name="no_permission">В доступе отказано, приложение не будет работать должным образом!</string>
+    <string name="picture_upload_success">Картинка загружена в облако!</string>
+    <string name="picture_upload_fail">Не удалось загрузить изображение в облако!</string>
+    <string name="undo">Отменить</string>
+    <string name="redo">Снова</string>
+    <string name="save">Сохранить</string>
+</resources>

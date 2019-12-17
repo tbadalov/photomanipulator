@@ -7,6 +7,21 @@
     tools:context=".PhotoEditActivity"
     android:background="@android:color/black">
 
+    <ProgressBar
+        android:id="@+id/progressbar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:elevation="1dp"
+        android:indeterminate="true"
+        android:max="100"
+        android:backgroundTint="@android:color/white"
+        android:indeterminateTint="#1a09d6"
+        android:visibility="gone"/>
+
     <ImageView
         android:id="@+id/img_edit"
         android:layout_width="match_parent"
@@ -29,6 +44,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="horizontal"
+            android:gravity="center_vertical"
             android:padding="10dp"
             android:background="@android:color/darker_gray">
             <ImageView
@@ -39,24 +55,31 @@
                 android:layout_marginHorizontal="12dp"/>
 
             <ImageView
-                android:id="@+id/btn_rotate"
+                android:id="@+id/btn_rotate_left"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/image_crop"
+                android:src="@drawable/ic_rotate_left"
                 android:layout_marginHorizontal="12dp"/>
 
             <ImageView
-                android:id="@+id/btn_mirror_vertical"
+                android:id="@+id/btn_rotate_right"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/image_crop"
+                android:src="@drawable/ic_rotate_right"
                 android:layout_marginHorizontal="12dp"/>
 
             <ImageView
-                android:id="@+id/btn_mirror_horizontal"
+                android:id="@+id/btn_mirror_v"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/image_crop"
+                android:src="@drawable/ic_border_horizontal"
+                android:layout_marginHorizontal="12dp"/>
+
+            <ImageView
+                android:id="@+id/btn_mirror_h"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_border_vertical"
                 android:layout_marginHorizontal="12dp"/>
 
             <ImageView

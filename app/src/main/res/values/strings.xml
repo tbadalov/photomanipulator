@@ -5,4 +5,7 @@
     <string name="no_permission">Permission denied, application will not work as expected!</string>
     <string name="picture_upload_success">Picture uploaded to the cloud!</string>
     <string name="picture_upload_fail">Failed to upload picture to the cloud!</string>
+    <string name="undo">Undo</string>
+    <string name="redo">Redo</string>
+    <string name="save">Save</string>
 </resources>

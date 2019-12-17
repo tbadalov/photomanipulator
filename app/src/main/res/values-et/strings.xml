@@ -5,4 +5,7 @@
     <string name="no_permission">Rakendusele ei antud piisavalt õigusi!</string>
     <string name="picture_upload_success">Pildi laadimine pilve õnnestus!</string>
     <string name="picture_upload_fail">Pildi laadimine pilve ebaõnnestus!</string>
+    <string name="undo">Tagasi</string>
+    <string name="redo">Uuesti</string>
+    <string name="save">Salvesta</string>
 </resources>
